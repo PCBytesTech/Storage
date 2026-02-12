@@ -183,19 +183,21 @@ function isStaffNameValid() {
 }
 
 function showStaffNameRequiredNotification() {
-    showDiscordNotification("⚠️ Staff Name Required", "Please enter your staff name before performing any actions", "error");
+    showDiscordNotification("⚠️ STAFF NAME REQUIRED", "You MUST enter your staff name before performing any actions", "error");
     staffDisplayNameInput.style.borderColor = "#f44336";
-    staffDisplayNameInput.style.borderWidth = "2px";
+    staffDisplayNameInput.style.borderWidth = "3px";
     staffDisplayNameInput.style.borderStyle = "solid";
+    staffDisplayNameInput.style.backgroundColor = "#fff0f0";
     staffDisplayNameInput.focus();
 }
 
 function clearStaffNameError() {
     staffDisplayNameInput.style.borderColor = "rgba(255, 255, 255, 0.3)";
     staffDisplayNameInput.style.borderWidth = "2px";
+    staffDisplayNameInput.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
 }
 
-// ================= DISCORD-STYLE NOTIFICATIONS - BIGGER =================
+// ================= DISCORD-STYLE NOTIFICATIONS - MUCH BIGGER =================
 function showDiscordNotification(title, message, type = "success") {
     // Remove any existing notification
     const existing = document.querySelector('.discord-notification');
@@ -212,7 +214,7 @@ function showDiscordNotification(title, message, type = "success") {
     
     document.body.appendChild(notification);
     
-    // Auto-close after 3.5 seconds
+    // Auto-close after 5 seconds
     setTimeout(() => {
         if (notification.parentNode) {
             notification.style.animation = 'discordFadeOut 0.3s ease forwards';
@@ -222,10 +224,10 @@ function showDiscordNotification(title, message, type = "success") {
                 }
             }, 300);
         }
-    }, 3500);
+    }, 5000);
 }
 
-// ================= TOAST NOTIFICATIONS - BIGGER =================
+// ================= TOAST NOTIFICATIONS - MUCH BIGGER =================
 function showToast(message, type = "info") {
     let toastContainer = document.getElementById("toastContainer");
     
@@ -247,7 +249,7 @@ function showToast(message, type = "info") {
     
     toastContainer.appendChild(toast);
     
-    // Remove toast after 3.5 seconds
+    // Remove toast after 5 seconds
     setTimeout(() => {
         if (toast.parentNode) {
             toast.style.animation = "discordFadeOut 0.3s ease forwards";
@@ -257,7 +259,7 @@ function showToast(message, type = "info") {
                 }
             }, 300);
         }
-    }, 3500);
+    }, 5000);
 }
 
 // ================= ENTER KEY SUPPORT =================
@@ -338,7 +340,7 @@ function setupEnterKeySupport() {
             staffDisplayName = staffDisplayNameInput.value.trim();
             if (staffDisplayName !== "") {
                 clearStaffNameError();
-                showToast("Staff name updated", "success");
+                showToast("✅ Staff name updated", "success");
             } else {
                 showStaffNameRequiredNotification();
             }
@@ -403,28 +405,32 @@ function performLogin() {
     const password = adminPassInput.value.trim();
     
     if(!username || !password){
-        showDiscordNotification("Login Error", "Please enter username and password", "error");
+        showDiscordNotification("❌ Login Error", "Please enter username and password", "error");
         loginError.textContent = "Please enter username and password";
         return;
     }
     
     if(!users[username] || users[username].password !== password){
-        showDiscordNotification("Login Failed", "Invalid username or password", "error");
+        showDiscordNotification("❌ Login Failed", "Invalid username or password", "error");
         loginError.textContent = "Invalid username or password";
         return;
     }
     
     currentStaff = username;
-    staffDisplayName = username;
-    staffDisplayNameInput.value = username;
+    staffDisplayName = ""; // EMPTY - Force them to enter name!
+    staffDisplayNameInput.value = ""; // CLEAR the field - MUST enter name!
     
     loginModal.style.display = "none";
     mainContent.classList.remove("hidden");
     currentUserSpan.textContent = `Logged in as: ${username}`;
     
-    showDiscordNotification("Welcome Back!", `Successfully logged in as ${username}`, "success");
+    showDiscordNotification("✅ Welcome Back!", `Successfully logged in as ${username}`, "success");
     loginError.textContent = "";
     clearStaffNameError();
+    
+    // Focus on staff name input to encourage them to enter it
+    staffDisplayNameInput.focus();
+    showToast("⚠️ Please enter your staff name", "warning");
 }
 
 showCreateForm.onclick = () => {
@@ -453,25 +459,25 @@ function performCreateAccount() {
     
     if(!username || !password){
         createError.textContent = "Please fill all fields";
-        showDiscordNotification("Error", "Please fill all fields", "error");
+        showDiscordNotification("❌ Error", "Please fill all fields", "error");
         return;
     }
     
     if(username.length < 3){
         createError.textContent = "Username must be at least 3 characters";
-        showDiscordNotification("Error", "Username must be at least 3 characters", "error");
+        showDiscordNotification("❌ Error", "Username must be at least 3 characters", "error");
         return;
     }
     
     if(password.length < 4){
         createError.textContent = "Password must be at least 4 characters";
-        showDiscordNotification("Error", "Password must be at least 4 characters", "error");
+        showDiscordNotification("❌ Error", "Password must be at least 4 characters", "error");
         return;
     }
     
     if(users[username]){
         createError.textContent = "Username already exists";
-        showDiscordNotification("Error", "Username already exists", "error");
+        showDiscordNotification("❌ Error", "Username already exists", "error");
         return;
     }
     
@@ -479,7 +485,7 @@ function performCreateAccount() {
     localStorage.setItem("pcUsers", JSON.stringify(users));
     
     createError.textContent = "";
-    showDiscordNotification("Account Created", "Account created successfully! You can now log in.", "success");
+    showDiscordNotification("✅ Account Created", "Account created successfully! You can now log in.", "success");
     
     setTimeout(() => {
         backToLogin.onclick();
@@ -714,19 +720,19 @@ addModelBtn.onclick = () => {
     const category = addModelCategory.value;
     
     if(!modelName){
-        showDiscordNotification("Error", "Please enter model name", "error");
+        showDiscordNotification("❌ Error", "Please enter model name", "error");
         return;
     }
     
     if(!category){
-        showDiscordNotification("Error", "Please select a category", "error");
+        showDiscordNotification("❌ Error", "Please select a category", "error");
         return;
     }
     
     // Check if model already exists in ANY category
     for(const cat in stock){
         if(stock[cat][modelName]){
-            showDiscordNotification("Model Exists", `Model "${modelName}" already exists in category "${cat}"`, "error");
+            showDiscordNotification("❌ Model Exists", `Model "${modelName}" already exists in category "${cat}"`, "error");
             return;
         }
     }
@@ -746,7 +752,7 @@ addModelBtn.onclick = () => {
     updateTotalSummary();
     
     addLog("add", getDisplayName(), modelName, category, 0);
-    showDiscordNotification("Model Added", `Successfully added "${modelName}" to "${category}"`, "success");
+    showDiscordNotification("✅ Model Added", `Successfully added "${modelName}" to "${category}"`, "success");
 };
 
 // ================= REMOVE MODEL =================
@@ -759,7 +765,7 @@ removeModelBtn.onclick = () => {
     const selectedValue = removeModelSelect.value;
     
     if(!selectedValue || !selectedValue.includes("|")){
-        showDiscordNotification("Error", "Please select a model to remove", "error");
+        showDiscordNotification("❌ Error", "Please select a model to remove", "error");
         return;
     }
     
@@ -789,7 +795,7 @@ removeModelBtn.onclick = () => {
     updateTotalSummary();
     
     addLog("remove", getDisplayName(), modelName, category, 0);
-    showDiscordNotification("Model Removed", `Successfully removed "${modelName}" from "${category}"`, "info");
+    showDiscordNotification("✅ Model Removed", `Successfully removed "${modelName}" from "${category}"`, "info");
 };
 
 // ================= RENAME MODEL =================
@@ -803,26 +809,26 @@ renameModelBtn.onclick = () => {
     const newName = renameModelNewName.value.trim();
     
     if(!selectedValue || !selectedValue.includes("|")){
-        showDiscordNotification("Error", "Please select a model to rename", "error");
+        showDiscordNotification("❌ Error", "Please select a model to rename", "error");
         return;
     }
     
     if(!newName){
-        showDiscordNotification("Error", "Please enter new model name", "error");
+        showDiscordNotification("❌ Error", "Please enter new model name", "error");
         return;
     }
     
     const [category, oldName] = selectedValue.split("|");
     
     if(newName === oldName){
-        showDiscordNotification("Error", "New name is the same as old name", "error");
+        showDiscordNotification("❌ Error", "New name is the same as old name", "error");
         return;
     }
     
     // Check if new name already exists in ANY category
     for(const cat in stock){
         if(stock[cat][newName]){
-            showDiscordNotification("Model Exists", `Model "${newName}" already exists in category "${cat}"`, "error");
+            showDiscordNotification("❌ Model Exists", `Model "${newName}" already exists in category "${cat}"`, "error");
             return;
         }
     }
@@ -849,7 +855,7 @@ renameModelBtn.onclick = () => {
     updateTotalSummary();
     
     addLog("rename", getDisplayName(), oldName, category, 0, newName);
-    showDiscordNotification("Model Renamed", `Successfully renamed "${oldName}" to "${newName}"`, "success");
+    showDiscordNotification("✅ Model Renamed", `Successfully renamed "${oldName}" to "${newName}"`, "success");
 };
 
 // ================= CATEGORY MANAGEMENT =================
@@ -862,7 +868,7 @@ addCategoryBtn.onclick = () => {
     const categoryName = addCategoryName.value.trim();
     
     if(!categoryName){
-        showDiscordNotification("Error", "Please enter category name", "error");
+        showDiscordNotification("❌ Error", "Please enter category name", "error");
         return;
     }
     
@@ -870,7 +876,7 @@ addCategoryBtn.onclick = () => {
     const formattedName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
     
     if(categories[formattedName]){
-        showDiscordNotification("Category Exists", `Category "${formattedName}" already exists`, "error");
+        showDiscordNotification("❌ Category Exists", `Category "${formattedName}" already exists`, "error");
         return;
     }
     
@@ -892,7 +898,7 @@ addCategoryBtn.onclick = () => {
     renderStock();
     
     addLog("add_category", getDisplayName(), "", formattedName, 0);
-    showDiscordNotification("Category Added", `Successfully added category "${formattedName}"`, "success");
+    showDiscordNotification("✅ Category Added", `Successfully added category "${formattedName}"`, "success");
 };
 
 removeCategoryBtn.onclick = () => {
@@ -904,7 +910,7 @@ removeCategoryBtn.onclick = () => {
     const category = removeCategorySelect.value;
     
     if(!category){
-        showDiscordNotification("Error", "Please select a category to remove", "error");
+        showDiscordNotification("❌ Error", "Please select a category to remove", "error");
         return;
     }
     
@@ -926,7 +932,7 @@ removeCategoryBtn.onclick = () => {
     updateTotalSummary();
     
     addLog("remove_category", getDisplayName(), "", category, modelCount);
-    showDiscordNotification("Category Removed", `Removed category "${category}" with ${modelCount} models`, "warning");
+    showDiscordNotification("⚠️ Category Removed", `Removed category "${category}" with ${modelCount} models`, "warning");
 };
 
 // ================= ERASE FUNCTIONS =================
@@ -953,7 +959,7 @@ eraseStockBtn.onclick = () => {
     updateTotalSummary();
     
     addLog("erase_stock", getDisplayName(), "", "ALL", 0);
-    showDiscordNotification("Stock Reset", "All stock counts reset to zero", "warning");
+    showDiscordNotification("⚠️ Stock Reset", "All stock counts reset to zero", "warning");
 };
 
 eraseBtn.onclick = () => {
@@ -968,7 +974,7 @@ eraseBtn.onclick = () => {
     
     const userInput = prompt("LAST CHANCE: This cannot be undone!\nType 'DELETE' to confirm:");
     if(userInput !== "DELETE"){
-        showDiscordNotification("Cancelled", "Data erase was cancelled", "info");
+        showDiscordNotification("ℹ️ Cancelled", "Data erase was cancelled", "info");
         return;
     }
     
@@ -990,7 +996,7 @@ eraseBtn.onclick = () => {
     updateTotalSummary();
     
     addLog("erase_all", getDisplayName(), "", "ALL", 0);
-    showDiscordNotification("Data Erased", "All data has been erased", "warning");
+    showDiscordNotification("💣 Data Erased", "All data has been erased", "warning");
 };
 
 // ================= INVENTORY PROCESSING =================
@@ -1005,17 +1011,17 @@ processBtn.onclick = () => {
     const action = actionSelect.value;
     
     if(!model){
-        showDiscordNotification("Error", "Please select a model", "error");
+        showDiscordNotification("❌ Error", "Please select a model", "error");
         return;
     }
     
     if(qty <= 0){
-        showDiscordNotification("Error", "Please enter a valid quantity", "error");
+        showDiscordNotification("❌ Error", "Please enter a valid quantity", "error");
         return;
     }
     
     if(qty > 9999){
-        showDiscordNotification("Error", "Quantity cannot exceed 9999", "error");
+        showDiscordNotification("❌ Error", "Quantity cannot exceed 9999", "error");
         return;
     }
     
@@ -1029,7 +1035,7 @@ processBtn.onclick = () => {
     }
     
     if(!category){
-        showDiscordNotification("Error", "Model not found", "error");
+        showDiscordNotification("❌ Error", "Model not found", "error");
         return;
     }
     
@@ -1041,68 +1047,68 @@ processBtn.onclick = () => {
     switch(action){
         case "receive":
             if(stockItem.tech + qty > 9999){
-                showDiscordNotification("Error", "Cannot exceed maximum stock limit (9999)", "error");
+                showDiscordNotification("❌ Error", "Cannot exceed maximum stock limit (9999)", "error");
                 return;
             }
             stockItem.tech += qty;
             actionText = `Received ${qty} to Tech`;
-            notificationTitle = "Stock Received";
+            notificationTitle = "📥 Stock Received";
             logAction = "receive_to_tech";
             break;
             
         case "transfer":
             if(stockItem.tech < qty){
-                showDiscordNotification("Insufficient Stock", `Not enough in Tech stock! Available: ${stockItem.tech}`, "error");
+                showDiscordNotification("❌ Insufficient Stock", `Not enough in Tech stock! Available: ${stockItem.tech}`, "error");
                 return;
             }
             if(stockItem.shop + qty > 9999){
-                showDiscordNotification("Error", "Cannot exceed maximum shop stock limit (9999)", "error");
+                showDiscordNotification("❌ Error", "Cannot exceed maximum shop stock limit (9999)", "error");
                 return;
             }
             stockItem.tech -= qty;
             stockItem.shop += qty;
             actionText = `Transferred ${qty} from Tech to Shop`;
-            notificationTitle = "Stock Transferred";
+            notificationTitle = "🔄 Stock Transferred";
             logAction = "transfer_tech_to_shop";
             break;
             
         case "return":
             if(stockItem.shop < qty){
-                showDiscordNotification("Insufficient Stock", `Not enough in Shop stock! Available: ${stockItem.shop}`, "error");
+                showDiscordNotification("❌ Insufficient Stock", `Not enough in Shop stock! Available: ${stockItem.shop}`, "error");
                 return;
             }
             if(stockItem.tech + qty > 9999){
-                showDiscordNotification("Error", "Cannot exceed maximum tech stock limit (9999)", "error");
+                showDiscordNotification("❌ Error", "Cannot exceed maximum tech stock limit (9999)", "error");
                 return;
             }
             stockItem.shop -= qty;
             stockItem.tech += qty;
             actionText = `Returned ${qty} from Shop to Tech`;
-            notificationTitle = "Stock Returned";
+            notificationTitle = "↩️ Stock Returned";
             logAction = "return_shop_to_tech";
             break;
             
         case "sell":
             if(stockItem.shop < qty){
-                showDiscordNotification("Insufficient Stock", `Not enough in Shop stock! Available: ${stockItem.shop}`, "error");
+                showDiscordNotification("❌ Insufficient Stock", `Not enough in Shop stock! Available: ${stockItem.shop}`, "error");
                 return;
             }
             stockItem.shop -= qty;
             stockItem.sold += qty;
             actionText = `Sold ${qty} from Shop`;
-            notificationTitle = "Stock Sold";
+            notificationTitle = "💰 Stock Sold";
             logAction = "sell_shop_to_customer";
             break;
             
         case "direct":
             if(stockItem.tech < qty){
-                showDiscordNotification("Insufficient Stock", `Not enough in Tech stock! Available: ${stockItem.tech}`, "error");
+                showDiscordNotification("❌ Insufficient Stock", `Not enough in Tech stock! Available: ${stockItem.tech}`, "error");
                 return;
             }
             stockItem.tech -= qty;
             stockItem.sold += qty;
             actionText = `Direct sold ${qty} from Tech`;
-            notificationTitle = "Direct Sale";
+            notificationTitle = "🎯 Direct Sale";
             logAction = "direct_sell_tech_to_customer";
             break;
     }
@@ -1357,7 +1363,7 @@ exportBtn.onclick = () => {
     document.body.removeChild(link);
     
     addLog("export", getDisplayName(), "", "", 0);
-    showDiscordNotification("Data Exported", "Data exported successfully with detailed logs!", "success");
+    showDiscordNotification("✅ Data Exported", "Data exported successfully with detailed logs!", "success");
 };
 
 // ================= VIEW LOGS =================
