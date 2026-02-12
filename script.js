@@ -176,7 +176,26 @@ const closeLogsBtn = document.getElementById("closeLogsBtn");
 const logsSidebar = document.getElementById("logsSidebar");
 const logContent = document.getElementById("logContent");
 
-// ================= DISCORD-STYLE NOTIFICATIONS - FIXED =================
+// ================= STAFF NAME VALIDATION =================
+function isStaffNameValid() {
+    const staffName = staffDisplayNameInput.value.trim();
+    return staffName !== "";
+}
+
+function showStaffNameRequiredNotification() {
+    showDiscordNotification("⚠️ Staff Name Required", "Please enter your staff name before performing any actions", "error");
+    staffDisplayNameInput.style.borderColor = "#f44336";
+    staffDisplayNameInput.style.borderWidth = "2px";
+    staffDisplayNameInput.style.borderStyle = "solid";
+    staffDisplayNameInput.focus();
+}
+
+function clearStaffNameError() {
+    staffDisplayNameInput.style.borderColor = "rgba(255, 255, 255, 0.3)";
+    staffDisplayNameInput.style.borderWidth = "2px";
+}
+
+// ================= DISCORD-STYLE NOTIFICATIONS - BIGGER =================
 function showDiscordNotification(title, message, type = "success") {
     // Remove any existing notification
     const existing = document.querySelector('.discord-notification');
@@ -193,7 +212,7 @@ function showDiscordNotification(title, message, type = "success") {
     
     document.body.appendChild(notification);
     
-    // Auto-close after 3 seconds
+    // Auto-close after 3.5 seconds
     setTimeout(() => {
         if (notification.parentNode) {
             notification.style.animation = 'discordFadeOut 0.3s ease forwards';
@@ -203,10 +222,10 @@ function showDiscordNotification(title, message, type = "success") {
                 }
             }, 300);
         }
-    }, 3000);
+    }, 3500);
 }
 
-// ================= TOAST NOTIFICATIONS - FIXED =================
+// ================= TOAST NOTIFICATIONS - BIGGER =================
 function showToast(message, type = "info") {
     let toastContainer = document.getElementById("toastContainer");
     
@@ -228,7 +247,7 @@ function showToast(message, type = "info") {
     
     toastContainer.appendChild(toast);
     
-    // Remove toast after 3 seconds
+    // Remove toast after 3.5 seconds
     setTimeout(() => {
         if (toast.parentNode) {
             toast.style.animation = "discordFadeOut 0.3s ease forwards";
@@ -238,7 +257,7 @@ function showToast(message, type = "info") {
                 }
             }, 300);
         }
-    }, 3000);
+    }, 3500);
 }
 
 // ================= ENTER KEY SUPPORT =================
@@ -317,7 +336,12 @@ function setupEnterKeySupport() {
         if (e.key === 'Enter') {
             e.preventDefault();
             staffDisplayName = staffDisplayNameInput.value.trim();
-            showToast("Staff name updated", "success");
+            if (staffDisplayName !== "") {
+                clearStaffNameError();
+                showToast("Staff name updated", "success");
+            } else {
+                showStaffNameRequiredNotification();
+            }
         }
     });
     
@@ -400,6 +424,7 @@ function performLogin() {
     
     showDiscordNotification("Welcome Back!", `Successfully logged in as ${username}`, "success");
     loginError.textContent = "";
+    clearStaffNameError();
 }
 
 showCreateForm.onclick = () => {
@@ -464,6 +489,16 @@ function performCreateAccount() {
 // Update staff display name when changed
 staffDisplayNameInput.addEventListener("input", () => {
     staffDisplayName = staffDisplayNameInput.value.trim();
+    if (staffDisplayName !== "") {
+        clearStaffNameError();
+    }
+});
+
+// Staff name blur event - validate when leaving the field
+staffDisplayNameInput.addEventListener("blur", () => {
+    if (staffDisplayNameInput.value.trim() === "") {
+        showStaffNameRequiredNotification();
+    }
 });
 
 // ================= DROPDOWN FUNCTIONS =================
@@ -670,6 +705,11 @@ function getCategoryColor(category) {
 
 // ================= ADD MODEL =================
 addModelBtn.onclick = () => {
+    if (!isStaffNameValid()) {
+        showStaffNameRequiredNotification();
+        return;
+    }
+    
     const modelName = addModelName.value.trim();
     const category = addModelCategory.value;
     
@@ -711,6 +751,11 @@ addModelBtn.onclick = () => {
 
 // ================= REMOVE MODEL =================
 removeModelBtn.onclick = () => {
+    if (!isStaffNameValid()) {
+        showStaffNameRequiredNotification();
+        return;
+    }
+    
     const selectedValue = removeModelSelect.value;
     
     if(!selectedValue || !selectedValue.includes("|")){
@@ -749,6 +794,11 @@ removeModelBtn.onclick = () => {
 
 // ================= RENAME MODEL =================
 renameModelBtn.onclick = () => {
+    if (!isStaffNameValid()) {
+        showStaffNameRequiredNotification();
+        return;
+    }
+    
     const selectedValue = renameModelSelect.value;
     const newName = renameModelNewName.value.trim();
     
@@ -804,6 +854,11 @@ renameModelBtn.onclick = () => {
 
 // ================= CATEGORY MANAGEMENT =================
 addCategoryBtn.onclick = () => {
+    if (!isStaffNameValid()) {
+        showStaffNameRequiredNotification();
+        return;
+    }
+    
     const categoryName = addCategoryName.value.trim();
     
     if(!categoryName){
@@ -841,6 +896,11 @@ addCategoryBtn.onclick = () => {
 };
 
 removeCategoryBtn.onclick = () => {
+    if (!isStaffNameValid()) {
+        showStaffNameRequiredNotification();
+        return;
+    }
+    
     const category = removeCategorySelect.value;
     
     if(!category){
@@ -871,6 +931,11 @@ removeCategoryBtn.onclick = () => {
 
 // ================= ERASE FUNCTIONS =================
 eraseStockBtn.onclick = () => {
+    if (!isStaffNameValid()) {
+        showStaffNameRequiredNotification();
+        return;
+    }
+    
     if(!confirm("⚠️ This will reset ALL stock counts to ZERO!\n\nTech, Shop, and Sold will become 0.\n\nThis action cannot be undone!\n\nAre you sure?")){
         return;
     }
@@ -892,6 +957,11 @@ eraseStockBtn.onclick = () => {
 };
 
 eraseBtn.onclick = () => {
+    if (!isStaffNameValid()) {
+        showStaffNameRequiredNotification();
+        return;
+    }
+    
     if(!confirm("⚠️ WARNING: This will delete ALL inventory data!\n\nCategories, Models, Logs - EVERYTHING!\n\nThis action cannot be undone!\n\nAre you absolutely sure?")){
         return;
     }
@@ -925,6 +995,11 @@ eraseBtn.onclick = () => {
 
 // ================= INVENTORY PROCESSING =================
 processBtn.onclick = () => {
+    if (!isStaffNameValid()) {
+        showStaffNameRequiredNotification();
+        return;
+    }
+    
     const model = modelSelect.value;
     const qty = Number(qtyInput.value);
     const action = actionSelect.value;
@@ -1185,6 +1260,11 @@ function updateLogDisplay() {
 
 // ================= EXPORT FUNCTION =================
 exportBtn.onclick = () => {
+    if (!isStaffNameValid()) {
+        showStaffNameRequiredNotification();
+        return;
+    }
+    
     // Prepare data for export
     const exportData = [];
     
