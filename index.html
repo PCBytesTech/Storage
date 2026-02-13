@@ -48,26 +48,30 @@
 <section class="controls">
     <!-- SEARCH & ACTION SECTION -->
     <div class="section-title">🔍 Search & Actions</div>
-    <div class="row" style="align-items: flex-start;">
+    <div class="row">
         <div class="input-group">
             <label for="searchModel">Search Model:</label>
             <input type="text" id="searchModel" placeholder="Type to search instantly..." class="fixed-border-input">
         </div>
-        <div class="input-group">
-            <label for="modelSelect">Select Model: <span id="selectedModelDisplay" style="color: #FF9800; font-weight: bold; margin-left: 5px;"></span></label>
-            <select id="modelSelect" size="5" class="fixed-border-select">
-                <option value="">Select a model...</option>
-            </select>
+        <div class="input-group dropdown-group">
+            <label for="modelSelect">Select Model: <span id="selectedModelDisplay" class="selected-badge"></span></label>
+            <div class="dropdown-container">
+                <select id="modelSelect" size="5" class="fixed-border-select dropdown-select">
+                    <option value="">Select a model...</option>
+                </select>
+            </div>
         </div>
         <div class="input-group">
             <label for="actionSelect">Action:</label>
-            <select id="actionSelect" class="fixed-border-select">
-                <option value="receive">Receive → Tech</option>
-                <option value="transfer">Tech → Shop</option>
-                <option value="return">Shop → Tech (Return)</option>
-                <option value="sell">Sell Shop → Customer</option>
-                <option value="direct">Direct Sell Tech</option>
-            </select>
+            <div class="dropdown-container">
+                <select id="actionSelect" class="fixed-border-select">
+                    <option value="receive">Receive → Tech</option>
+                    <option value="transfer">Tech → Shop</option>
+                    <option value="return">Shop → Tech (Return)</option>
+                    <option value="sell">Sell Shop → Customer</option>
+                    <option value="direct">Direct Sell Tech</option>
+                </select>
+            </div>
         </div>
         <div class="input-group">
             <label for="qtyInput">Quantity:</label>
@@ -75,13 +79,17 @@
         </div>
         <button id="processBtn" class="btn-primary">✅ Process</button>
     </div>
-    <!-- REQUESTED BY - MOVED TO SEPARATE ROW BELOW ACTION -->
-    <div class="row" id="requestedByRow" style="display: none; margin-top: -5px;">
-        <div class="input-group" style="max-width: 300px;">
+
+    <!-- REQUESTED BY - SEPARATE ROW PROPERLY ALIGNED -->
+    <div class="row requested-row" id="requestedByRow" style="display: none;">
+        <div class="input-group requested-group">
             <label for="requestedByInput">👤 Requested By:</label>
-            <input type="text" id="requestedByInput" placeholder="Who requested this item? (Required)" class="fixed-border-input">
+            <input type="text" id="requestedByInput" placeholder="Who requested this item? (Required)" class="fixed-border-input requested-input">
         </div>
-        <div style="flex: 2;"></div>
+        <div class="input-group"></div>
+        <div class="input-group"></div>
+        <div class="input-group"></div>
+        <div style="width: 100px;"></div>
     </div>
 
     <!-- REMOVE QUANTITY SECTION - WITH SEARCH BAR -->
@@ -91,18 +99,22 @@
             <label for="removeSearchCorrection">🔍 Search Model:</label>
             <input type="text" id="removeSearchCorrection" placeholder="Type to search models instantly..." class="fixed-border-input">
         </div>
-        <div class="input-group">
-            <label for="removeModelSelectCorrection">Select Model: <span id="selectedRemoveDisplay" style="color: #FF9800; font-weight: bold; margin-left: 5px;"></span></label>
-            <select id="removeModelSelectCorrection" size="5" class="fixed-border-select">
-                <option value="">Select a model...</option>
-            </select>
+        <div class="input-group dropdown-group">
+            <label for="removeModelSelectCorrection">Select Model: <span id="selectedRemoveDisplay" class="selected-badge warning-badge"></span></label>
+            <div class="dropdown-container">
+                <select id="removeModelSelectCorrection" size="5" class="fixed-border-select dropdown-select">
+                    <option value="">Select a model...</option>
+                </select>
+            </div>
         </div>
         <div class="input-group">
             <label for="removeLocationSelect">Remove From:</label>
-            <select id="removeLocationSelect" class="fixed-border-select">
-                <option value="tech">Tech Stock</option>
-                <option value="shop">Shop Stock</option>
-            </select>
+            <div class="dropdown-container">
+                <select id="removeLocationSelect" class="fixed-border-select">
+                    <option value="tech">Tech Stock</option>
+                    <option value="shop">Shop Stock</option>
+                </select>
+            </div>
         </div>
         <div class="input-group">
             <label for="removeQtyInput">Quantity to Remove:</label>
@@ -120,9 +132,11 @@
         </div>
         <div class="input-group">
             <label for="addModelCategory">Category:</label>
-            <select id="addModelCategory" class="fixed-border-select">
-                <option value="">Select Category</option>
-            </select>
+            <div class="dropdown-container">
+                <select id="addModelCategory" class="fixed-border-select">
+                    <option value="">Select Category</option>
+                </select>
+            </div>
         </div>
         <button id="addModelBtn" class="btn-success">➕ Add Model</button>
     </div>
@@ -132,11 +146,13 @@
             <label for="removeModelSearch">Search Model:</label>
             <input type="text" id="removeModelSearch" placeholder="Type to search instantly..." class="fixed-border-input">
         </div>
-        <div class="input-group">
-            <label for="removeModelSelect">Select to Remove: <span id="selectedRemoveModelDisplay" style="color: #f44336; font-weight: bold; margin-left: 5px;"></span></label>
-            <select id="removeModelSelect" size="5" class="fixed-border-select">
-                <option value="">Select a model to remove...</option>
-            </select>
+        <div class="input-group dropdown-group">
+            <label for="removeModelSelect">Select to Remove: <span id="selectedRemoveModelDisplay" class="selected-badge danger-badge"></span></label>
+            <div class="dropdown-container">
+                <select id="removeModelSelect" size="5" class="fixed-border-select dropdown-select">
+                    <option value="">Select a model to remove...</option>
+                </select>
+            </div>
         </div>
         <button id="removeModelBtn" class="btn-danger">➖ Remove Model</button>
     </div>
@@ -146,11 +162,13 @@
             <label for="renameModelSearch">Search Model:</label>
             <input type="text" id="renameModelSearch" placeholder="Type to search instantly..." class="fixed-border-input">
         </div>
-        <div class="input-group">
-            <label for="renameModelSelect">Select to Rename: <span id="selectedRenameDisplay" style="color: #FF9800; font-weight: bold; margin-left: 5px;"></span></label>
-            <select id="renameModelSelect" size="5" class="fixed-border-select">
-                <option value="">Select a model to rename...</option>
-            </select>
+        <div class="input-group dropdown-group">
+            <label for="renameModelSelect">Select to Rename: <span id="selectedRenameDisplay" class="selected-badge warning-badge"></span></label>
+            <div class="dropdown-container">
+                <select id="renameModelSelect" size="5" class="fixed-border-select dropdown-select">
+                    <option value="">Select a model to rename...</option>
+                </select>
+            </div>
         </div>
         <div class="input-group">
             <label for="renameModelNewName">New Name:</label>
@@ -168,11 +186,13 @@
         </div>
         <button id="addCategoryBtn" class="btn-success">📁 Add Category</button>
         
-        <div class="input-group">
-            <label for="removeCategorySelect">Remove Category: <span id="selectedCategoryDisplay" style="color: #f44336; font-weight: bold; margin-left: 5px;"></span></label>
-            <select id="removeCategorySelect" class="fixed-border-select">
-                <option value="">Select Category to Remove</option>
-            </select>
+        <div class="input-group dropdown-group">
+            <label for="removeCategorySelect">Remove Category: <span id="selectedCategoryDisplay" class="selected-badge danger-badge"></span></label>
+            <div class="dropdown-container">
+                <select id="removeCategorySelect" class="fixed-border-select">
+                    <option value="">Select Category to Remove</option>
+                </select>
+            </div>
         </div>
         <button id="removeCategoryBtn" class="btn-danger">🗑️ Remove Category</button>
     </div>
@@ -193,11 +213,11 @@
 </section>
 
 <section>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; max-width: 1200px;">
-        <h2 style="margin: 0;">📊 Stock Overview</h2>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <label for="stockSearch" style="color: white; font-weight: 500;">🔍 Search Stock:</label>
-            <input type="text" id="stockSearch" placeholder="Type to filter models..." style="padding: 8px 12px; border-radius: 6px; border: 2px solid rgba(33, 150, 243, 0.5); background: rgba(255,255,255,0.95); width: 250px;">
+    <div class="stock-header">
+        <h2>📊 Stock Overview</h2>
+        <div class="stock-search-container">
+            <label for="stockSearch">🔍 Filter Models:</label>
+            <input type="text" id="stockSearch" placeholder="Type to filter..." class="stock-search-input">
         </div>
     </div>
     <div id="stockContainer"></div>
@@ -210,7 +230,7 @@
     <div id="logContent">No logs yet</div>
 </div>
 
-<!-- Toast Notification Container -->
+<!-- Toast Notification Container - FIXED POSITIONING -->
 <div id="toastContainer"></div>
 
 </div>
