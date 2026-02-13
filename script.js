@@ -57,6 +57,7 @@ let logs = JSON.parse(localStorage.getItem("pcLogs") || "[]");
 let currentStaff = "";
 let staffDisplayName = "";
 let currentDate = new Date().toISOString().split('T')[0];
+let stockSearchTerm = "";
 
 // Initialize stock if empty
 function initializeStock() {
@@ -133,8 +134,9 @@ const staffDisplayNameInput = document.getElementById("staffDisplayName");
 // Search & Action elements
 const searchModelInput = document.getElementById("searchModel");
 const modelSelect = document.getElementById("modelSelect");
+const selectedModelDisplay = document.getElementById("selectedModelDisplay");
 const actionSelect = document.getElementById("actionSelect");
-const requestedByGroup = document.getElementById("requestedByGroup");
+const requestedByRow = document.getElementById("requestedByRow");
 const requestedByInput = document.getElementById("requestedByInput");
 const qtyInput = document.getElementById("qtyInput");
 const processBtn = document.getElementById("processBtn");
@@ -142,6 +144,7 @@ const processBtn = document.getElementById("processBtn");
 // Remove Quantity elements - WITH SEARCH
 const removeSearchCorrection = document.getElementById("removeSearchCorrection");
 const removeModelSelectCorrection = document.getElementById("removeModelSelectCorrection");
+const selectedRemoveDisplay = document.getElementById("selectedRemoveDisplay");
 const removeLocationSelect = document.getElementById("removeLocationSelect");
 const removeQtyInput = document.getElementById("removeQtyInput");
 const removeQtyBtn = document.getElementById("removeQtyBtn");
@@ -154,11 +157,13 @@ const addModelBtn = document.getElementById("addModelBtn");
 // Remove Model elements
 const removeModelSearch = document.getElementById("removeModelSearch");
 const removeModelSelect = document.getElementById("removeModelSelect");
+const selectedRemoveModelDisplay = document.getElementById("selectedRemoveModelDisplay");
 const removeModelBtn = document.getElementById("removeModelBtn");
 
 // Rename Model elements
 const renameModelSearch = document.getElementById("renameModelSearch");
 const renameModelSelect = document.getElementById("renameModelSelect");
+const selectedRenameDisplay = document.getElementById("selectedRenameDisplay");
 const renameModelNewName = document.getElementById("renameModelNewName");
 const renameModelBtn = document.getElementById("renameModelBtn");
 
@@ -166,6 +171,7 @@ const renameModelBtn = document.getElementById("renameModelBtn");
 const addCategoryName = document.getElementById("addCategoryName");
 const addCategoryBtn = document.getElementById("addCategoryBtn");
 const removeCategorySelect = document.getElementById("removeCategorySelect");
+const selectedCategoryDisplay = document.getElementById("selectedCategoryDisplay");
 const removeCategoryBtn = document.getElementById("removeCategoryBtn");
 
 // Erase buttons
@@ -180,6 +186,7 @@ const viewLogsBtn = document.getElementById("viewLogsBtn");
 
 // Other elements
 const stockContainer = document.getElementById("stockContainer");
+const stockSearch = document.getElementById("stockSearch");
 const logoutBtn = document.getElementById("logoutBtn");
 const closeLogsBtn = document.getElementById("closeLogsBtn");
 const logsSidebar = document.getElementById("logsSidebar");
@@ -352,43 +359,11 @@ function setupEnterKeySupport() {
         }
     });
     
-    searchModelInput.addEventListener('keypress', (e) => {
+    stockSearch.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            if (modelSelect.options.length > 0 && !modelSelect.options[0].disabled) {
-                modelSelect.selectedIndex = 0;
-                modelSelect.focus();
-            }
-        }
-    });
-    
-    removeSearchCorrection.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (removeModelSelectCorrection.options.length > 0 && !removeModelSelectCorrection.options[0].disabled) {
-                removeModelSelectCorrection.selectedIndex = 0;
-                removeModelSelectCorrection.focus();
-            }
-        }
-    });
-    
-    removeModelSearch.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (removeModelSelect.options.length > 0 && !removeModelSelect.options[0].disabled) {
-                removeModelSelect.selectedIndex = 0;
-                removeModelSelect.focus();
-            }
-        }
-    });
-    
-    renameModelSearch.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (renameModelSelect.options.length > 0 && !renameModelSelect.options[0].disabled) {
-                renameModelSelect.selectedIndex = 0;
-                renameModelSelect.focus();
-            }
+            stockSearchTerm = stockSearch.value.toLowerCase();
+            renderStock();
         }
     });
 }
@@ -514,12 +489,59 @@ staffDisplayNameInput.addEventListener("blur", () => {
 // ================= ACTION SELECT CHANGE =================
 actionSelect.addEventListener("change", () => {
     if (actionSelect.value === "transfer") {
-        requestedByGroup.style.display = "flex";
+        requestedByRow.style.display = "flex";
         requestedByInput.required = true;
     } else {
-        requestedByGroup.style.display = "none";
+        requestedByRow.style.display = "none";
         requestedByInput.required = false;
         requestedByInput.value = "";
+    }
+});
+
+// ================= SELECT CHANGE DISPLAYS =================
+modelSelect.addEventListener("change", () => {
+    if (modelSelect.value) {
+        selectedModelDisplay.textContent = `📌 ${modelSelect.value}`;
+    } else {
+        selectedModelDisplay.textContent = "";
+    }
+});
+
+removeModelSelectCorrection.addEventListener("change", () => {
+    if (removeModelSelectCorrection.value) {
+        selectedRemoveDisplay.textContent = `📌 ${removeModelSelectCorrection.value}`;
+    } else {
+        selectedRemoveDisplay.textContent = "";
+    }
+});
+
+removeModelSelect.addEventListener("change", () => {
+    if (removeModelSelect.value) {
+        const displayValue = removeModelSelect.value.includes("|") 
+            ? removeModelSelect.value.split("|")[1] 
+            : removeModelSelect.value;
+        selectedRemoveModelDisplay.textContent = `📌 ${displayValue}`;
+    } else {
+        selectedRemoveModelDisplay.textContent = "";
+    }
+});
+
+renameModelSelect.addEventListener("change", () => {
+    if (renameModelSelect.value) {
+        const displayValue = renameModelSelect.value.includes("|") 
+            ? renameModelSelect.value.split("|")[1] 
+            : renameModelSelect.value;
+        selectedRenameDisplay.textContent = `📌 ${displayValue}`;
+    } else {
+        selectedRenameDisplay.textContent = "";
+    }
+});
+
+removeCategorySelect.addEventListener("change", () => {
+    if (removeCategorySelect.value) {
+        selectedCategoryDisplay.textContent = `📌 ${removeCategorySelect.value}`;
+    } else {
+        selectedCategoryDisplay.textContent = "";
     }
 });
 
@@ -748,6 +770,11 @@ renameModelSearch.addEventListener("input", () => {
     populateRenameModelSelect();
 });
 
+stockSearch.addEventListener("input", () => {
+    stockSearchTerm = stockSearch.value.toLowerCase();
+    renderStock();
+});
+
 // Date functionality
 datePicker.addEventListener("change", () => {
     const selectedDate = datePicker.value;
@@ -852,6 +879,9 @@ removeModelBtn.onclick = () => {
     
     addLog("remove", getDisplayName(), modelName, category, 0);
     showDiscordNotification("✅ Model Removed", `Successfully removed "${modelName}" from "${category}"`, "info");
+    
+    // Clear display
+    selectedRemoveModelDisplay.textContent = "";
 };
 
 // ================= RENAME MODEL =================
@@ -908,6 +938,9 @@ renameModelBtn.onclick = () => {
     
     addLog("rename", getDisplayName(), oldName, category, 0, newName);
     showDiscordNotification("✅ Model Renamed", `Successfully renamed "${oldName}" to "${newName}"`, "success");
+    
+    // Clear display
+    selectedRenameDisplay.textContent = "";
 };
 
 // ================= CATEGORY MANAGEMENT =================
@@ -981,6 +1014,9 @@ removeCategoryBtn.onclick = () => {
     
     addLog("remove_category", getDisplayName(), "", category, modelCount);
     showDiscordNotification("⚠️ Category Removed", `Removed category "${category}" with ${modelCount} models`, "warning");
+    
+    // Clear display
+    selectedCategoryDisplay.textContent = "";
 };
 
 // ================= REMOVE QUANTITY (CORRECTION) =================
@@ -1244,19 +1280,18 @@ processBtn.onclick = () => {
     }
 };
 
-// ================= RENDER FUNCTIONS =================
+// ================= RENDER FUNCTIONS WITH SEARCH =================
 function renderStock(stockData = stock) {
     let html = "";
+    let hasVisibleItems = false;
     
     for(const category in stockData){
         const categoryItems = Object.keys(stockData[category]);
         if(categoryItems.length === 0) continue;
         
         const categoryColor = getCategoryColor(category);
-        
-        html += `<div class="category-section">`;
-        html += `<h3 style="background-color: ${categoryColor}">${category} (${categoryItems.length} models)</h3>`;
-        html += `<table><tr><th>Model</th><th>Tech Stock</th><th>Shop Stock</th><th>Sold</th><th>Total</th></tr>`;
+        let categoryHasVisible = false;
+        let categoryHtml = "";
         
         let categoryTech = 0;
         let categoryShop = 0;
@@ -1264,13 +1299,22 @@ function renderStock(stockData = stock) {
         
         for(const model in stockData[category]){
             const item = stockData[category][model];
+            
+            // Apply search filter
+            if (stockSearchTerm && !model.toLowerCase().includes(stockSearchTerm) && !category.toLowerCase().includes(stockSearchTerm)) {
+                continue;
+            }
+            
+            categoryHasVisible = true;
+            hasVisibleItems = true;
+            
             const total = item.tech + item.shop + item.sold;
             
             categoryTech += item.tech;
             categoryShop += item.shop;
             categorySold += item.sold;
             
-            html += `<tr>
+            categoryHtml += `<tr>
                 <td style="background-color: ${categoryColor}">${model}</td>
                 <td style="background-color: ${columnColors.tech}">${item.tech}</td>
                 <td style="background-color: ${columnColors.shop}">${item.shop}</td>
@@ -1279,16 +1323,21 @@ function renderStock(stockData = stock) {
             </tr>`;
         }
         
-        html += `<tr class="category-total">
-            <td colspan="5" style="background-color: #E0E0E0">
-                <strong>${category} Total: Tech ${categoryTech} | Shop ${categoryShop} | Sold ${categorySold} | All: ${categoryTech + categoryShop + categorySold}</strong>
-            </td>
-        </tr>`;
-        
-        html += "</table></div>";
+        if (categoryHasVisible) {
+            html += `<div class="category-section">`;
+            html += `<h3 style="background-color: ${categoryColor}">${category} (${categoryItems.length} models)</h3>`;
+            html += `<table><tr><th>Model</th><th>Tech Stock</th><th>Shop Stock</th><th>Sold</th><th>Total</th></tr>`;
+            html += categoryHtml;
+            html += `<tr class="category-total">
+                <td colspan="5" style="background-color: #E0E0E0">
+                    <strong>${category} Total: Tech ${categoryTech} | Shop ${categoryShop} | Sold ${categorySold} | All: ${categoryTech + categoryShop + categorySold}</strong>
+                </td>
+            </tr>`;
+            html += "</table></div>";
+        }
     }
     
-    stockContainer.innerHTML = html || "<p>No inventory data available. Add some models to get started!</p>";
+    stockContainer.innerHTML = html || (stockSearchTerm ? "<p>No matching models found. Try a different search term.</p>" : "<p>No inventory data available. Add some models to get started!</p>");
 }
 
 function updateTotalSummary() {
