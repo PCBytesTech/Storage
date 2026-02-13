@@ -134,7 +134,6 @@ const staffDisplayNameInput = document.getElementById("staffDisplayName");
 // Search & Action elements
 const searchModelInput = document.getElementById("searchModel");
 const modelSelect = document.getElementById("modelSelect");
-const selectedModelDisplay = document.getElementById("selectedModelDisplay");
 const actionSelect = document.getElementById("actionSelect");
 const requestedByRow = document.getElementById("requestedByRow");
 const requestedByInput = document.getElementById("requestedByInput");
@@ -144,7 +143,6 @@ const processBtn = document.getElementById("processBtn");
 // Remove Quantity elements
 const removeSearchCorrection = document.getElementById("removeSearchCorrection");
 const removeModelSelectCorrection = document.getElementById("removeModelSelectCorrection");
-const selectedRemoveDisplay = document.getElementById("selectedRemoveDisplay");
 const removeLocationSelect = document.getElementById("removeLocationSelect");
 const removeQtyInput = document.getElementById("removeQtyInput");
 const removeQtyBtn = document.getElementById("removeQtyBtn");
@@ -157,13 +155,11 @@ const addModelBtn = document.getElementById("addModelBtn");
 // Remove Model elements
 const removeModelSearch = document.getElementById("removeModelSearch");
 const removeModelSelect = document.getElementById("removeModelSelect");
-const selectedRemoveModelDisplay = document.getElementById("selectedRemoveModelDisplay");
 const removeModelBtn = document.getElementById("removeModelBtn");
 
 // Rename Model elements
 const renameModelSearch = document.getElementById("renameModelSearch");
 const renameModelSelect = document.getElementById("renameModelSelect");
-const selectedRenameDisplay = document.getElementById("selectedRenameDisplay");
 const renameModelNewName = document.getElementById("renameModelNewName");
 const renameModelBtn = document.getElementById("renameModelBtn");
 
@@ -171,7 +167,6 @@ const renameModelBtn = document.getElementById("renameModelBtn");
 const addCategoryName = document.getElementById("addCategoryName");
 const addCategoryBtn = document.getElementById("addCategoryBtn");
 const removeCategorySelect = document.getElementById("removeCategorySelect");
-const selectedCategoryDisplay = document.getElementById("selectedCategoryDisplay");
 const removeCategoryBtn = document.getElementById("removeCategoryBtn");
 
 // Erase buttons
@@ -212,9 +207,15 @@ function clearStaffNameError() {
     staffDisplayNameInput.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
 }
 
-// ================= NOTIFICATION SYSTEM =================
+// ================= FIXED NOTIFICATION SYSTEM - NO DUPLICATES =================
+let notificationTimeout = null;
+
 function showDiscordNotification(title, message, type = "success") {
     const toastContainer = document.getElementById("toastContainer");
+    
+    if (notificationTimeout) {
+        clearTimeout(notificationTimeout);
+    }
     
     const notification = document.createElement('div');
     notification.className = `discord-notification ${type}`;
@@ -225,7 +226,7 @@ function showDiscordNotification(title, message, type = "success") {
     
     toastContainer.appendChild(notification);
     
-    setTimeout(() => {
+    notificationTimeout = setTimeout(() => {
         if (notification.parentNode) {
             notification.style.animation = 'discordFadeOut 0.3s ease forwards';
             setTimeout(() => {
@@ -234,7 +235,8 @@ function showDiscordNotification(title, message, type = "success") {
                 }
             }, 300);
         }
-    }, 4000);
+        notificationTimeout = null;
+    }, 4500);
 }
 
 function showToast(message, type = "info") {
@@ -260,7 +262,7 @@ function showToast(message, type = "info") {
                 }
             }, 300);
         }
-    }, 3000);
+    }, 3500);
 }
 
 // ================= ENTER KEY SUPPORT =================
@@ -508,62 +510,15 @@ staffDisplayNameInput.addEventListener("blur", () => {
     }
 });
 
-// ================= ACTION SELECT CHANGE =================
-actionSelect.addEventListener("change", () => {
-    if (actionSelect.value === "transfer") {
+// ================= ACTION SELECT CHANGE - ONLY SHOWS FOR TECH → SHOP =================
+actionSelect.addEventListener("change", function() {
+    if (this.value === "transfer") {
         requestedByRow.style.display = "flex";
         requestedByInput.required = true;
     } else {
         requestedByRow.style.display = "none";
         requestedByInput.required = false;
         requestedByInput.value = "";
-    }
-});
-
-// ================= SELECT CHANGE DISPLAYS =================
-modelSelect.addEventListener("change", () => {
-    if (modelSelect.value) {
-        selectedModelDisplay.textContent = `📌 ${modelSelect.value}`;
-    } else {
-        selectedModelDisplay.textContent = "";
-    }
-});
-
-removeModelSelectCorrection.addEventListener("change", () => {
-    if (removeModelSelectCorrection.value) {
-        selectedRemoveDisplay.textContent = `📌 ${removeModelSelectCorrection.value}`;
-    } else {
-        selectedRemoveDisplay.textContent = "";
-    }
-});
-
-removeModelSelect.addEventListener("change", () => {
-    if (removeModelSelect.value) {
-        const displayValue = removeModelSelect.value.includes("|") 
-            ? removeModelSelect.value.split("|")[1] 
-            : removeModelSelect.value;
-        selectedRemoveModelDisplay.textContent = `📌 ${displayValue}`;
-    } else {
-        selectedRemoveModelDisplay.textContent = "";
-    }
-});
-
-renameModelSelect.addEventListener("change", () => {
-    if (renameModelSelect.value) {
-        const displayValue = renameModelSelect.value.includes("|") 
-            ? renameModelSelect.value.split("|")[1] 
-            : renameModelSelect.value;
-        selectedRenameDisplay.textContent = `📌 ${displayValue}`;
-    } else {
-        selectedRenameDisplay.textContent = "";
-    }
-});
-
-removeCategorySelect.addEventListener("change", () => {
-    if (removeCategorySelect.value) {
-        selectedCategoryDisplay.textContent = `📌 ${removeCategorySelect.value}`;
-    } else {
-        selectedCategoryDisplay.textContent = "";
     }
 });
 
@@ -808,12 +763,12 @@ datePicker.addEventListener("change", () => {
     }
 });
 
+// ================= FIXED SET TODAY DATE - NO DUPLICATE =================
 function setTodayDate() {
     const today = new Date().toISOString().split('T')[0];
     datePicker.value = today;
     currentDate = today;
     renderStock();
-    showToast("Showing current stock", "info");
 }
 
 // Get category color
@@ -901,8 +856,6 @@ removeModelBtn.onclick = () => {
     
     addLog("remove", getDisplayName(), modelName, category, 0);
     showDiscordNotification("✅ Model Removed", `Successfully removed "${modelName}" from "${category}"`, "info");
-    
-    selectedRemoveModelDisplay.textContent = "";
 };
 
 // ================= RENAME MODEL =================
@@ -959,8 +912,6 @@ renameModelBtn.onclick = () => {
     
     addLog("rename", getDisplayName(), oldName, category, 0, newName);
     showDiscordNotification("✅ Model Renamed", `Successfully renamed "${oldName}" to "${newName}"`, "success");
-    
-    selectedRenameDisplay.textContent = "";
 };
 
 // ================= CATEGORY MANAGEMENT =================
@@ -1034,8 +985,6 @@ removeCategoryBtn.onclick = () => {
     
     addLog("remove_category", getDisplayName(), "", category, modelCount);
     showDiscordNotification("⚠️ Category Removed", `Removed category "${category}" with ${modelCount} models`, "warning");
-    
-    selectedCategoryDisplay.textContent = "";
 };
 
 // ================= REMOVE QUANTITY (CORRECTION) =================
