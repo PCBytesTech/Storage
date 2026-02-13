@@ -139,7 +139,8 @@ const requestedByInput = document.getElementById("requestedByInput");
 const qtyInput = document.getElementById("qtyInput");
 const processBtn = document.getElementById("processBtn");
 
-// Remove Quantity elements
+// Remove Quantity elements - WITH SEARCH
+const removeSearchCorrection = document.getElementById("removeSearchCorrection");
 const removeModelSelectCorrection = document.getElementById("removeModelSelectCorrection");
 const removeLocationSelect = document.getElementById("removeLocationSelect");
 const removeQtyInput = document.getElementById("removeQtyInput");
@@ -361,6 +362,16 @@ function setupEnterKeySupport() {
         }
     });
     
+    removeSearchCorrection.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (removeModelSelectCorrection.options.length > 0 && !removeModelSelectCorrection.options[0].disabled) {
+                removeModelSelectCorrection.selectedIndex = 0;
+                removeModelSelectCorrection.focus();
+            }
+        }
+    });
+    
     removeModelSearch.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -569,13 +580,18 @@ function populateModelSelect() {
 
 function populateModelSelectCorrection() {
     removeModelSelectCorrection.innerHTML = '';
+    const searchTerm = removeSearchCorrection ? removeSearchCorrection.value.toLowerCase() : "";
+    let hasResults = false;
     
     const categoriesWithModels = {};
     
     for(const category in stock){
         categoriesWithModels[category] = [];
         Object.keys(stock[category]).forEach(model => {
-            categoriesWithModels[category].push(model);
+            if(searchTerm === "" || model.toLowerCase().includes(searchTerm) || category.toLowerCase().includes(searchTerm)){
+                categoriesWithModels[category].push(model);
+                hasResults = true;
+            }
         });
     }
     
@@ -596,6 +612,14 @@ function populateModelSelectCorrection() {
                 removeModelSelectCorrection.appendChild(option);
             });
         }
+    }
+    
+    if(!hasResults){
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = searchTerm === "" ? "No models available" : "No matching models found";
+        option.disabled = true;
+        removeModelSelectCorrection.appendChild(option);
     }
 }
 
@@ -710,6 +734,10 @@ function populateRenameModelSelect() {
 // ================= INSTANT SEARCH FUNCTIONS =================
 searchModelInput.addEventListener("input", () => {
     populateModelSelect();
+});
+
+removeSearchCorrection.addEventListener("input", () => {
+    populateModelSelectCorrection();
 });
 
 removeModelSearch.addEventListener("input", () => {
