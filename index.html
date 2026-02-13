@@ -38,7 +38,7 @@
     <h1>🖥️ PC Bytes Inventory System</h1>
     <div id="userPanel">
         <div class="staff-name-input">
-            <input type="text" id="staffDisplayName" placeholder="Staff Name (for logs)" title="Enter your name for activity logs">
+            <input type="text" id="staffDisplayName" placeholder="ENTER YOUR NAME (REQUIRED)" title="You MUST enter your name to perform any actions">
         </div>
         <span id="currentUserSpan">Logged in as: —</span>
         <button id="logoutBtn">🚪 Log Out</button>
@@ -69,11 +69,38 @@
                 <option value="direct">Direct Sell Tech</option>
             </select>
         </div>
+        <div class="input-group" id="requestedByGroup" style="display: none;">
+            <label for="requestedByInput">👤 Requested By:</label>
+            <input type="text" id="requestedByInput" placeholder="Who requested this item?" class="fixed-border-input">
+        </div>
         <div class="input-group">
             <label for="qtyInput">Quantity:</label>
             <input type="number" id="qtyInput" min="1" value="1" class="fixed-border-input">
         </div>
         <button id="processBtn" class="btn-primary">✅ Process</button>
+    </div>
+
+    <!-- REMOVE QUANTITY SECTION -->
+    <div class="section-title">⚠️ Correction Tools</div>
+    <div class="row">
+        <div class="input-group">
+            <label for="removeModelSelectCorrection">Select Model:</label>
+            <select id="removeModelSelectCorrection" size="5" class="fixed-border-select">
+                <option value="">Select a model...</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="removeLocationSelect">Remove From:</label>
+            <select id="removeLocationSelect" class="fixed-border-select">
+                <option value="tech">Tech Stock</option>
+                <option value="shop">Shop Stock</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="removeQtyInput">Quantity to Remove:</label>
+            <input type="number" id="removeQtyInput" min="1" value="1" class="fixed-border-input">
+        </div>
+        <button id="removeQtyBtn" class="btn-warning">➖ Remove Quantity</button>
     </div>
 
     <!-- MODEL MANAGEMENT SECTION -->
