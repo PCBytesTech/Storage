@@ -137,6 +137,8 @@ const modelSelect = document.getElementById("modelSelect");
 const actionSelect = document.getElementById("actionSelect");
 const requestedByRow = document.getElementById("requestedByRow");
 const requestedByInput = document.getElementById("requestedByInput");
+const returnedByRow = document.getElementById("returnedByRow");
+const returnedByInput = document.getElementById("returnedByInput");
 const qtyInput = document.getElementById("qtyInput");
 const processBtn = document.getElementById("processBtn");
 
@@ -390,6 +392,20 @@ function setupEnterKeySupport() {
             }
         }
     });
+    
+    requestedByInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            processBtn.click();
+        }
+    });
+    
+    returnedByInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            processBtn.click();
+        }
+    });
 }
 
 // ================= INITIALIZE =================
@@ -510,15 +526,27 @@ staffDisplayNameInput.addEventListener("blur", () => {
     }
 });
 
-// ================= ACTION SELECT CHANGE - ONLY SHOWS FOR TECH → SHOP =================
+// ================= ACTION SELECT CHANGE - SHOWS REQUESTED BY FOR TRANSFER AND RETURNED BY FOR RETURN =================
 actionSelect.addEventListener("change", function() {
     if (this.value === "transfer") {
         requestedByRow.style.display = "flex";
         requestedByInput.required = true;
+        returnedByRow.style.display = "none";
+        returnedByInput.required = false;
+        returnedByInput.value = "";
+    } else if (this.value === "return") {
+        returnedByRow.style.display = "flex";
+        returnedByInput.required = true;
+        requestedByRow.style.display = "none";
+        requestedByInput.required = false;
+        requestedByInput.value = "";
     } else {
         requestedByRow.style.display = "none";
         requestedByInput.required = false;
         requestedByInput.value = "";
+        returnedByRow.style.display = "none";
+        returnedByInput.required = false;
+        returnedByInput.value = "";
     }
 });
 
@@ -1201,12 +1229,20 @@ processBtn.onclick = () => {
                 showToast("❌ Cannot exceed maximum tech stock limit (9999)", "error");
                 return;
             }
+            
+            const returnedBy = returnedByInput.value.trim();
+            if (!returnedBy) {
+                showToast("❌ Please enter who returned this item", "error");
+                returnedByInput.focus();
+                return;
+            }
+            
             stockItem.shop -= qty;
             stockItem.tech += qty;
             actionText = `Returned ${qty} from Shop to Tech`;
             notificationTitle = "↩️ Stock Returned";
             logAction = "return_shop_to_tech";
-            addLog(logAction, getDisplayName(), model, category, qty);
+            addLog(logAction, getDisplayName(), model, category, qty, `Returned by: ${returnedBy}`);
             break;
             
         case "sell":
@@ -1243,8 +1279,11 @@ processBtn.onclick = () => {
     
     showDiscordNotification(notificationTitle, `${actionText}: ${model}`, "success");
     qtyInput.value = 1;
+    
     if (action === "transfer") {
         requestedByInput.value = "";
+    } else if (action === "return") {
+        returnedByInput.value = "";
     }
 };
 
