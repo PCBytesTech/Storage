@@ -141,7 +141,7 @@ const requestedByInput = document.getElementById("requestedByInput");
 const qtyInput = document.getElementById("qtyInput");
 const processBtn = document.getElementById("processBtn");
 
-// Remove Quantity elements - WITH SEARCH
+// Remove Quantity elements
 const removeSearchCorrection = document.getElementById("removeSearchCorrection");
 const removeModelSelectCorrection = document.getElementById("removeModelSelectCorrection");
 const selectedRemoveDisplay = document.getElementById("selectedRemoveDisplay");
@@ -199,7 +199,7 @@ function isStaffNameValid() {
 }
 
 function showStaffNameRequiredNotification() {
-    showDiscordNotification("⚠️ STAFF NAME REQUIRED", "You MUST enter your name before performing any actions", "error");
+    showToast("⚠️ You MUST enter your name to perform actions", "warning");
     staffDisplayNameInput.style.borderColor = "#f44336";
     staffDisplayNameInput.style.borderWidth = "3px";
     staffDisplayNameInput.style.backgroundColor = "#fff0f0";
@@ -212,12 +212,9 @@ function clearStaffNameError() {
     staffDisplayNameInput.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
 }
 
-// ================= DISCORD-STYLE NOTIFICATIONS =================
+// ================= NOTIFICATION SYSTEM =================
 function showDiscordNotification(title, message, type = "success") {
-    const existing = document.querySelector('.discord-notification');
-    if (existing) {
-        existing.remove();
-    }
+    const toastContainer = document.getElementById("toastContainer");
     
     const notification = document.createElement('div');
     notification.className = `discord-notification ${type}`;
@@ -226,7 +223,7 @@ function showDiscordNotification(title, message, type = "success") {
         <p>${message}</p>
     `;
     
-    document.body.appendChild(notification);
+    toastContainer.appendChild(notification);
     
     setTimeout(() => {
         if (notification.parentNode) {
@@ -237,18 +234,11 @@ function showDiscordNotification(title, message, type = "success") {
                 }
             }, 300);
         }
-    }, 5000);
+    }, 4000);
 }
 
-// ================= TOAST NOTIFICATIONS =================
 function showToast(message, type = "info") {
-    let toastContainer = document.getElementById("toastContainer");
-    
-    if (!toastContainer) {
-        toastContainer = document.createElement("div");
-        toastContainer.id = "toastContainer";
-        document.body.appendChild(toastContainer);
-    }
+    const toastContainer = document.getElementById("toastContainer");
     
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
@@ -270,7 +260,7 @@ function showToast(message, type = "info") {
                 }
             }, 300);
         }
-    }, 5000);
+    }, 3000);
 }
 
 // ================= ENTER KEY SUPPORT =================
@@ -359,11 +349,43 @@ function setupEnterKeySupport() {
         }
     });
     
-    stockSearch.addEventListener('keypress', (e) => {
+    searchModelInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            stockSearchTerm = stockSearch.value.toLowerCase();
-            renderStock();
+            if (modelSelect.options.length > 0 && !modelSelect.options[0].disabled) {
+                modelSelect.selectedIndex = 0;
+                modelSelect.focus();
+            }
+        }
+    });
+    
+    removeSearchCorrection.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (removeModelSelectCorrection.options.length > 0 && !removeModelSelectCorrection.options[0].disabled) {
+                removeModelSelectCorrection.selectedIndex = 0;
+                removeModelSelectCorrection.focus();
+            }
+        }
+    });
+    
+    removeModelSearch.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (removeModelSelect.options.length > 0 && !removeModelSelect.options[0].disabled) {
+                removeModelSelect.selectedIndex = 0;
+                removeModelSelect.focus();
+            }
+        }
+    });
+    
+    renameModelSearch.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (renameModelSelect.options.length > 0 && !renameModelSelect.options[0].disabled) {
+                renameModelSelect.selectedIndex = 0;
+                renameModelSelect.focus();
+            }
         }
     });
 }
@@ -386,13 +408,13 @@ function performLogin() {
     const password = adminPassInput.value.trim();
     
     if(!username || !password){
-        showDiscordNotification("❌ Login Error", "Please enter username and password", "error");
+        showToast("❌ Please enter username and password", "error");
         loginError.textContent = "Please enter username and password";
         return;
     }
     
     if(!users[username] || users[username].password !== password){
-        showDiscordNotification("❌ Login Failed", "Invalid username or password", "error");
+        showToast("❌ Invalid username or password", "error");
         loginError.textContent = "Invalid username or password";
         return;
     }
@@ -439,25 +461,25 @@ function performCreateAccount() {
     
     if(!username || !password){
         createError.textContent = "Please fill all fields";
-        showDiscordNotification("❌ Error", "Please fill all fields", "error");
+        showToast("❌ Please fill all fields", "error");
         return;
     }
     
     if(username.length < 3){
         createError.textContent = "Username must be at least 3 characters";
-        showDiscordNotification("❌ Error", "Username must be at least 3 characters", "error");
+        showToast("❌ Username must be at least 3 characters", "error");
         return;
     }
     
     if(password.length < 4){
         createError.textContent = "Password must be at least 4 characters";
-        showDiscordNotification("❌ Error", "Password must be at least 4 characters", "error");
+        showToast("❌ Password must be at least 4 characters", "error");
         return;
     }
     
     if(users[username]){
         createError.textContent = "Username already exists";
-        showDiscordNotification("❌ Error", "Username already exists", "error");
+        showToast("❌ Username already exists", "error");
         return;
     }
     
@@ -810,18 +832,18 @@ addModelBtn.onclick = () => {
     const category = addModelCategory.value;
     
     if(!modelName){
-        showDiscordNotification("❌ Error", "Please enter model name", "error");
+        showToast("❌ Please enter model name", "error");
         return;
     }
     
     if(!category){
-        showDiscordNotification("❌ Error", "Please select a category", "error");
+        showToast("❌ Please select a category", "error");
         return;
     }
     
     for(const cat in stock){
         if(stock[cat][modelName]){
-            showDiscordNotification("❌ Model Exists", `Model "${modelName}" already exists in category "${cat}"`, "error");
+            showToast(`❌ Model "${modelName}" already exists in category "${cat}"`, "error");
             return;
         }
     }
@@ -852,7 +874,7 @@ removeModelBtn.onclick = () => {
     const selectedValue = removeModelSelect.value;
     
     if(!selectedValue || !selectedValue.includes("|")){
-        showDiscordNotification("❌ Error", "Please select a model to remove", "error");
+        showToast("❌ Please select a model to remove", "error");
         return;
     }
     
@@ -880,7 +902,6 @@ removeModelBtn.onclick = () => {
     addLog("remove", getDisplayName(), modelName, category, 0);
     showDiscordNotification("✅ Model Removed", `Successfully removed "${modelName}" from "${category}"`, "info");
     
-    // Clear display
     selectedRemoveModelDisplay.textContent = "";
 };
 
@@ -895,25 +916,25 @@ renameModelBtn.onclick = () => {
     const newName = renameModelNewName.value.trim();
     
     if(!selectedValue || !selectedValue.includes("|")){
-        showDiscordNotification("❌ Error", "Please select a model to rename", "error");
+        showToast("❌ Please select a model to rename", "error");
         return;
     }
     
     if(!newName){
-        showDiscordNotification("❌ Error", "Please enter new model name", "error");
+        showToast("❌ Please enter new model name", "error");
         return;
     }
     
     const [category, oldName] = selectedValue.split("|");
     
     if(newName === oldName){
-        showDiscordNotification("❌ Error", "New name is the same as old name", "error");
+        showToast("❌ New name is the same as old name", "error");
         return;
     }
     
     for(const cat in stock){
         if(stock[cat][newName]){
-            showDiscordNotification("❌ Model Exists", `Model "${newName}" already exists in category "${cat}"`, "error");
+            showToast(`❌ Model "${newName}" already exists in category "${cat}"`, "error");
             return;
         }
     }
@@ -939,7 +960,6 @@ renameModelBtn.onclick = () => {
     addLog("rename", getDisplayName(), oldName, category, 0, newName);
     showDiscordNotification("✅ Model Renamed", `Successfully renamed "${oldName}" to "${newName}"`, "success");
     
-    // Clear display
     selectedRenameDisplay.textContent = "";
 };
 
@@ -953,14 +973,14 @@ addCategoryBtn.onclick = () => {
     const categoryName = addCategoryName.value.trim();
     
     if(!categoryName){
-        showDiscordNotification("❌ Error", "Please enter category name", "error");
+        showToast("❌ Please enter category name", "error");
         return;
     }
     
     const formattedName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
     
     if(categories[formattedName]){
-        showDiscordNotification("❌ Category Exists", `Category "${formattedName}" already exists`, "error");
+        showToast(`❌ Category "${formattedName}" already exists`, "error");
         return;
     }
     
@@ -992,7 +1012,7 @@ removeCategoryBtn.onclick = () => {
     const category = removeCategorySelect.value;
     
     if(!category){
-        showDiscordNotification("❌ Error", "Please select a category to remove", "error");
+        showToast("❌ Please select a category to remove", "error");
         return;
     }
     
@@ -1015,7 +1035,6 @@ removeCategoryBtn.onclick = () => {
     addLog("remove_category", getDisplayName(), "", category, modelCount);
     showDiscordNotification("⚠️ Category Removed", `Removed category "${category}" with ${modelCount} models`, "warning");
     
-    // Clear display
     selectedCategoryDisplay.textContent = "";
 };
 
@@ -1031,12 +1050,12 @@ removeQtyBtn.onclick = () => {
     const location = removeLocationSelect.value;
     
     if (!model) {
-        showDiscordNotification("❌ Error", "Please select a model", "error");
+        showToast("❌ Please select a model", "error");
         return;
     }
     
     if (qty <= 0 || qty > 9999) {
-        showDiscordNotification("❌ Error", "Please enter a valid quantity (1-9999)", "error");
+        showToast("❌ Please enter a valid quantity (1-9999)", "error");
         return;
     }
     
@@ -1049,19 +1068,19 @@ removeQtyBtn.onclick = () => {
     }
     
     if (!category) {
-        showDiscordNotification("❌ Error", "Model not found", "error");
+        showToast("❌ Model not found", "error");
         return;
     }
     
     const stockItem = stock[category][model];
     
     if (location === "tech" && stockItem.tech < qty) {
-        showDiscordNotification("❌ Insufficient Stock", `Not enough in Tech stock! Available: ${stockItem.tech}`, "error");
+        showToast(`❌ Not enough in Tech stock! Available: ${stockItem.tech}`, "error");
         return;
     }
     
     if (location === "shop" && stockItem.shop < qty) {
-        showDiscordNotification("❌ Insufficient Stock", `Not enough in Shop stock! Available: ${stockItem.shop}`, "error");
+        showToast(`❌ Not enough in Shop stock! Available: ${stockItem.shop}`, "error");
         return;
     }
     
@@ -1124,7 +1143,7 @@ eraseBtn.onclick = () => {
     
     const userInput = prompt("LAST CHANCE: This cannot be undone!\nType 'DELETE' to confirm:");
     if(userInput !== "DELETE"){
-        showDiscordNotification("ℹ️ Cancelled", "Data erase was cancelled", "info");
+        showToast("ℹ️ Data erase cancelled", "info");
         return;
     }
     
@@ -1146,7 +1165,6 @@ eraseBtn.onclick = () => {
     addLog("erase_all", getDisplayName(), "", "ALL", 0);
     showDiscordNotification("💣 Data Erased", "All data has been erased", "warning");
 };
-
 // ================= INVENTORY PROCESSING =================
 processBtn.onclick = () => {
     if (!isStaffNameValid()) {
@@ -1159,12 +1177,12 @@ processBtn.onclick = () => {
     const action = actionSelect.value;
     
     if(!model){
-        showDiscordNotification("❌ Error", "Please select a model", "error");
+        showToast("❌ Please select a model", "error");
         return;
     }
     
     if(qty <= 0 || qty > 9999){
-        showDiscordNotification("❌ Error", "Please enter a valid quantity (1-9999)", "error");
+        showToast("❌ Please enter a valid quantity (1-9999)", "error");
         return;
     }
     
@@ -1177,7 +1195,7 @@ processBtn.onclick = () => {
     }
     
     if(!category){
-        showDiscordNotification("❌ Error", "Model not found", "error");
+        showToast("❌ Model not found", "error");
         return;
     }
     
@@ -1189,7 +1207,7 @@ processBtn.onclick = () => {
     switch(action){
         case "receive":
             if(stockItem.tech + qty > 9999){
-                showDiscordNotification("❌ Error", "Cannot exceed maximum stock limit (9999)", "error");
+                showToast("❌ Cannot exceed maximum stock limit (9999)", "error");
                 return;
             }
             stockItem.tech += qty;
@@ -1201,17 +1219,17 @@ processBtn.onclick = () => {
             
         case "transfer":
             if(stockItem.tech < qty){
-                showDiscordNotification("❌ Insufficient Stock", `Not enough in Tech stock! Available: ${stockItem.tech}`, "error");
+                showToast(`❌ Not enough in Tech stock! Available: ${stockItem.tech}`, "error");
                 return;
             }
             if(stockItem.shop + qty > 9999){
-                showDiscordNotification("❌ Error", "Cannot exceed maximum shop stock limit (9999)", "error");
+                showToast("❌ Cannot exceed maximum shop stock limit (9999)", "error");
                 return;
             }
             
             const requestedBy = requestedByInput.value.trim();
             if (!requestedBy) {
-                showDiscordNotification("❌ Error", "Please enter who requested this item", "error");
+                showToast("❌ Please enter who requested this item", "error");
                 requestedByInput.focus();
                 return;
             }
@@ -1226,11 +1244,11 @@ processBtn.onclick = () => {
             
         case "return":
             if(stockItem.shop < qty){
-                showDiscordNotification("❌ Insufficient Stock", `Not enough in Shop stock! Available: ${stockItem.shop}`, "error");
+                showToast(`❌ Not enough in Shop stock! Available: ${stockItem.shop}`, "error");
                 return;
             }
             if(stockItem.tech + qty > 9999){
-                showDiscordNotification("❌ Error", "Cannot exceed maximum tech stock limit (9999)", "error");
+                showToast("❌ Cannot exceed maximum tech stock limit (9999)", "error");
                 return;
             }
             stockItem.shop -= qty;
@@ -1243,7 +1261,7 @@ processBtn.onclick = () => {
             
         case "sell":
             if(stockItem.shop < qty){
-                showDiscordNotification("❌ Insufficient Stock", `Not enough in Shop stock! Available: ${stockItem.shop}`, "error");
+                showToast(`❌ Not enough in Shop stock! Available: ${stockItem.shop}`, "error");
                 return;
             }
             stockItem.shop -= qty;
@@ -1256,7 +1274,7 @@ processBtn.onclick = () => {
             
         case "direct":
             if(stockItem.tech < qty){
-                showDiscordNotification("❌ Insufficient Stock", `Not enough in Tech stock! Available: ${stockItem.tech}`, "error");
+                showToast(`❌ Not enough in Tech stock! Available: ${stockItem.tech}`, "error");
                 return;
             }
             stockItem.tech -= qty;
@@ -1300,7 +1318,6 @@ function renderStock(stockData = stock) {
         for(const model in stockData[category]){
             const item = stockData[category][model];
             
-            // Apply search filter
             if (stockSearchTerm && !model.toLowerCase().includes(stockSearchTerm) && !category.toLowerCase().includes(stockSearchTerm)) {
                 continue;
             }
@@ -1337,7 +1354,7 @@ function renderStock(stockData = stock) {
         }
     }
     
-    stockContainer.innerHTML = html || (stockSearchTerm ? "<p>No matching models found. Try a different search term.</p>" : "<p>No inventory data available. Add some models to get started!</p>");
+    stockContainer.innerHTML = html || (stockSearchTerm ? "<p style='text-align: center; padding: 40px; color: rgba(255,255,255,0.7);'>🔍 No matching models found. Try a different search term.</p>" : "<p style='text-align: center; padding: 40px; color: rgba(255,255,255,0.7);'>📦 No inventory data available. Add some models to get started!</p>");
 }
 
 function updateTotalSummary() {
@@ -1554,5 +1571,6 @@ window.addEventListener('load', () => {
     }
 });
 
+// Initialize
 setTodayDate();
 updateLogDisplay();
